@@ -8,10 +8,19 @@ class Game:
     
     @title.setter
     def title(self, new_title):
-        if isinstance(new_title, str) and len(new_title) > 0 and not hasattr(self,'_title'):
-            self._title=new_title
-        else:
-            print('title must be string > 0 chars')
+        if hasattr(self, '_title'):
+            print('title is already set')
+            return
+        
+        if not isinstance(new_title, str):
+            print('title must be string')
+            return
+        
+        if len(new_title) == 0:
+            print('title must be >0 chars')
+            return
+        
+        self._title = new_title
 
     def results(self):
         result_list = []
@@ -21,10 +30,22 @@ class Game:
         return result_list
 
     def players(self):
-        pass
+        player_list = []
+        for player in self.results():
+            player_list.append(player.player)
+        return list(set(player_list))
 
     def average_score(self, player):
-        pass
+        total = 0
+        count = 0
+        for result in self.results():
+            if result.player is player:
+                total += result.score
+                count += 1
+        return total/count
+    
+    def __repr__(self) -> str:
+        return f'<Game {self.title}>'
 
 class Player:
     def __init__(self, username):
@@ -36,27 +57,35 @@ class Player:
         
     @username.setter
     def username(self, new_username):
-        if isinstance(new_username, str) and 2<=len(new_username)<=16:
+        if isinstance(new_username, str) and 2 <= len(new_username) <= 16:
             self._username = new_username
         else:
             print('error username')
 
     def results(self):
         result_list = []
-        for result in Result.all:
-            if result.player is self:
-                result_list.append(result)
+        for result_obj in Result.all:
+            if result_obj.player is self:
+                result_list.append(result_obj)
         return result_list
 
     def games_played(self):
-        pass
+        result_games = []
+        for one_game in self.results():
+            result_games.append(one_game.game)
+        return list(set(result_games))
+            
 
     def played_game(self, game):
-        pass
+        return game in self.games_played()
 
     def num_times_played(self, game):
-        pass
-
+        count = 0
+        for result in self.results():
+            if result.game is game:
+                count += 1
+        return count
+    
 class Result:
     all = []
     
@@ -80,16 +109,16 @@ class Result:
             print('score must be int')
             return
         
-        if not 1 <= new_score <=5000:
+        if not (1 <= new_score <= 5000):
             print('score must be between 1 and 5000')
             return
-        
+    
         self._score = new_score
         
         @property
         def player(self):
             return self._player
-        
+    
         @player.setter
         def player(self, new_player):
             if isinstance(new_player, Player):
@@ -100,13 +129,13 @@ class Result:
         @property
         def game(self):
             return self._game
-        
+    
         @game.setter
         def game(self, new_game):
             if isinstance(new_game, Game):
                 self._game = new_game
             else:
                 print('invalid game')
-                
-        def __repr__(self) -> str:
+    
+        def __repr__(self):
             return f'<Result {self.score}, {self.game.title}, {self.player.username}>'
