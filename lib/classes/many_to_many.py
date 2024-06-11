@@ -86,6 +86,19 @@ class Player:
                 count += 1
         return count
     
+    @classmethod
+    def highest_scored(cls, game):
+        players = game.players()
+        max_player = players[0]
+        max_player_avg = game.average_score(max_player)
+        
+        for player in players:
+            avg = game.average_score(player)
+            if avg > max_player_avg:
+                max_player = player
+                max_player_avg = avg
+        return max_player
+    
 class Result:
     all = []
     
